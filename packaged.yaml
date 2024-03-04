@@ -1,0 +1,211 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'actorAgeGameApi
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+Parameters:
+  ApiGatewayStageName:
+    Default: v1
+    Description: Stage name for the API Gateway
+    Type: String
+Resources:
+  ActorAgeApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      ApiKeySourceType: HEADER
+      Description: An API Gateway with a Lambda Integration
+      Name: actor-age-api
+    Metadata:
+      SamResourceId: ActorAgeApi
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+        - ActorAgeApi
+        - RootResourceId
+      PathPart: '{userId}'
+      RestApiId:
+        Ref: ActorAgeApi
+    Metadata:
+      SamResourceId: ApiGatewayResource
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      RequestParameters:
+        method.request.path.userId: true
+      Integration:
+        Credentials:
+          Fn::GetAtt:
+          - ApiGatewayIamRole
+          - Arn
+        IntegrationHttpMethod: POST
+        IntegrationResponses:
+        - ResponseTemplates:
+            application/json: ''
+          ResponseParameters:
+            method.response.header.X-Requested-With: '''*'''
+            method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with'''
+            method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+            method.response.header.Access-Control-Allow-Origin: '''*'''
+          StatusCode: 200
+        PassthroughBehavior: WHEN_NO_TEMPLATES
+        RequestTemplates:
+          application/json: '{ "userId": "$input.params(''userId'')", "firstName":
+            "$input.params(''firstName'')"}'
+        TimeoutInMillis: 29000
+        Type: AWS
+        Uri:
+          Fn::Sub:
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn:
+              Fn::GetAtt:
+              - ActorAgeGetDetailsFunction
+              - Arn
+      MethodResponses:
+      - ResponseModels:
+          application/json: Empty
+        ResponseParameters:
+          method.response.header.X-Requested-With: false
+          method.response.header.Access-Control-Allow-Headers: false
+          method.response.header.Access-Control-Allow-Methods: false
+          method.response.header.Access-Control-Allow-Origin: false
+        StatusCode: 200
+      OperationName: friendly operation name
+      ResourceId:
+        Ref: ApiGatewayResource
+      RestApiId:
+        Ref: ActorAgeApi
+    Metadata:
+      SamResourceId: ApiGatewayMethod
+  ApiGatewayModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      RestApiId:
+        Ref: ActorAgeApi
+      Schema: {}
+    Metadata:
+      SamResourceId: ApiGatewayModel
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayMethod
+    Properties:
+      Description: Lambda API Deployment
+      RestApiId:
+        Ref: ActorAgeApi
+    Metadata:
+      SamResourceId: ApiGatewayDeployment
+  ApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: ApiGatewayDeployment
+      Description: Lambda API Stage
+      RestApiId:
+        Ref: ActorAgeApi
+      StageName:
+        Ref: ApiGatewayStageName
+    Metadata:
+      SamResourceId: ApiGatewayStage
+  ApiGatewayIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: ''
+          Effect: Allow
+          Principal:
+            Service:
+            - apigateway.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+    Metadata:
+      SamResourceId: ApiGatewayIamRole
+  ApiGatewayPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LambdaAccess
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: lambda:*
+          Resource:
+            Fn::GetAtt:
+            - ActorAgeGetDetailsFunction
+            - Arn
+      Roles:
+      - Ref: ApiGatewayIamRole
+    Metadata:
+      SamResourceId: ApiGatewayPolicy
+  ActorAgeGetDetailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://actorageapibucket/9291cceaacad4374ee11525426de365c
+      Handler: mainFunc.lambdaHandler
+      Role:
+        Fn::GetAtt:
+        - LambdaIamRole
+        - Arn
+      Runtime: nodejs18.x
+      Timeout: 90
+    Metadata:
+      SamResourceId: ActorAgeGetDetailsFunction
+  LambdaIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Path: /
+    Metadata:
+      SamResourceId: LambdaIamRole
+  LambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - ActorAgeGetDetailsFunction
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ActorAgeApi}/*/*
+    Metadata:
+      SamResourceId: LambdaApiGatewayInvoke
+Outputs:
+  ActorAgeApi:
+    Description: API Gateway endpoint URL for Prod stage for Get Details Function
+    Value:
+      Fn::Sub: https://${ActorAgeApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}/{userId}
+  ActorAgeGetDetailsFunction:
+    Description: Get Details Function ARN
+    Value:
+      Fn::GetAtt:
+      - ActorAgeGetDetailsFunction
+      - Arn
+  LambdaIamRole:
+    Description: IAM Role created for Lambda
+    Value:
+      Fn::GetAtt:
+      - LambdaIamRole
+      - Arn
+  ApiGatewayIamRole:
+    Description: IAM Role created for API Gateway
+    Value:
+      Fn::GetAtt:
+      - ApiGatewayIamRole
+      - Arn

@@ -9,6 +9,7 @@ stack_name = "actorAgeGameApi"
 [default.build.parameters]
 cached = true
 parallel = true
+beta_features = true
 
 [default.validate.parameters]
 lint = true
@@ -17,12 +18,13 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-
-[default.package.parameters]
-resolve_s3 = true
+s3_prefix = "actorAgeGameApi"
+region = "eu-west-2"
+image_repositories = []
 
 [default.sync.parameters]
 watch = true
+beta_features = true
 
 [default.local_start_api.parameters]
 warm_containers = "EAGER"

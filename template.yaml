@@ -3,60 +3,163 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   actorAgeGameApi
 
-  Sample SAM Template for actorAgeGameApi
-
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
 
-Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: actor-age-lambda/
-      Handler: app.lambdaHandler
-      Runtime: nodejs18.x
-      Architectures:
-        - x86_64
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2020
-        Sourcemap: true
-        EntryPoints:
-          - app.ts
+Parameters:
+  ApiGatewayStageName:
+    Default: v1
+    Description: Stage name for the API Gateway
+    Type: String
 
-  ApplicationResourceGroup:
-    Type: AWS::ResourceGroups::Group
+Resources:
+  ActorAgeApi:
+    Type: AWS::ApiGateway::RestApi
     Properties:
-      Name:
-        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
-      ResourceQuery:
-        Type: CLOUDFORMATION_STACK_1_0
-  ApplicationInsightsMonitoring:
-    Type: AWS::ApplicationInsights::Application
+      ApiKeySourceType: HEADER
+      Description: An API Gateway with a Lambda Integration
+      Name: actor-age-api
+
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
     Properties:
-      ResourceGroupName:
-        Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: 'true'
+      ParentId: !GetAtt ActorAgeApi.RootResourceId
+      PathPart: '{userId}'
+      RestApiId: !Ref ActorAgeApi
+
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      RequestParameters:
+        method.request.path.userId: true
+      Integration:
+        Credentials: !GetAtt ApiGatewayIamRole.Arn
+        IntegrationHttpMethod: POST
+        IntegrationResponses:
+          - ResponseTemplates: { 'application/json': '' }
+            ResponseParameters:
+              method.response.header.X-Requested-With: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            StatusCode: 200
+        PassthroughBehavior: WHEN_NO_TEMPLATES
+        RequestTemplates:
+          application/json: '{ "userId": "$input.params(''userId'')", "firstName": "$input.params(''firstName'')"}'
+        TimeoutInMillis: 29000
+        Type: AWS
+        # RequestParameters:
+        #   integration.request.path.userId: method.request.path.userId
+        Uri: !Sub
+          - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations'
+          - lambdaArn: !GetAtt 'ActorAgeGetDetailsFunction.Arn'
+      MethodResponses:
+        - ResponseModels:
+            application/json: 'Empty'
+          ResponseParameters:
+            method.response.header.X-Requested-With: false
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+          StatusCode: 200
+      OperationName: 'friendly operation name'
+      ResourceId: !Ref ApiGatewayResource
+      RestApiId: !Ref ActorAgeApi
+
+  ApiGatewayModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: 'application/json'
+      RestApiId: !Ref ActorAgeApi
+      Schema: {}
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayMethod
+    Properties:
+      Description: Lambda API Deployment
+      RestApiId: !Ref ActorAgeApi
+
+  ApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref ApiGatewayDeployment
+      Description: Lambda API Stage
+      RestApiId: !Ref ActorAgeApi
+      StageName: !Ref ApiGatewayStageName
+
+  ApiGatewayIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: ''
+            Effect: 'Allow'
+            Principal:
+              Service:
+                - 'apigateway.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: '/'
+
+  ApiGatewayPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: 'LambdaAccess'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 'lambda:*'
+            Resource: !GetAtt ActorAgeGetDetailsFunction.Arn
+      Roles:
+        - !Ref ApiGatewayIamRole
+
+  ActorAgeGetDetailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/
+      Handler: mainFunc.lambdaHandler
+      Role: !GetAtt LambdaIamRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 90
+
+  LambdaIamRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: '/'
+
+  LambdaApiGatewayInvoke:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt 'ActorAgeGetDetailsFunction.Arn'
+      Principal: 'apigateway.amazonaws.com'
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ActorAgeApi}/*/*
+
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: API Gateway endpoint URL for Prod stage for actor age api function
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/actorAgeLambda/'
-  HelloWorldFunction:
-    Description: Actor Age Lambda Function ARN
-    Value: !GetAtt ActorAgeLambdaFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: Implicit IAM Role created for Actor Age Lambda function
-    Value: !GetAtt ActorAgeLambdaFunctionRole.Arn
+  ActorAgeApi:
+    Description: 'API Gateway endpoint URL for Prod stage for Get Details Function'
+    Value: !Sub 'https://${ActorAgeApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}/{userId}'
+  ActorAgeGetDetailsFunction:
+    Description: 'Get Details Function ARN'
+    Value: !GetAtt ActorAgeGetDetailsFunction.Arn
+  LambdaIamRole:
+    Description: 'IAM Role created for Lambda'
+    Value: !GetAtt LambdaIamRole.Arn
+  ApiGatewayIamRole:
+    Description: 'IAM Role created for API Gateway'
+    Value: !GetAtt ApiGatewayIamRole.Arn
