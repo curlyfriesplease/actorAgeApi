@@ -1,21 +1,43 @@
 import { Context, APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
+import getTwoRandomActors from './functions/getTwoRandomActors';
+import getTwoSpecificActors from './functions/getTwoSpecificActors';
 
-export const lambdaHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-    console.log('Received event:', JSON.stringify(event, null, 2));
+export const lambdaHandler = async (
+  event: APIGatewayEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> => {
+  console.log('⚙️ Received event:', JSON.stringify(event, null, 2));
 
-    let eventBody;
-    if (event.body) {
-        eventBody = JSON.parse(event.body as string);
+  let returnBody;
+  if (event.body) {
+    const body = JSON.parse(event.body);
+    if (body.actor1 && body.actor2) {
+      console.log('⚙️ two actor IDs specified, fetching specific actors...');
+      returnBody = await getTwoSpecificActors(body.actor1, body.actor2);
     } else {
-        eventBody = JSON.parse("NO EVENT BODY!!!" as string);
+      console.log('⚙️ no actor IDs specified, fetching two random actors...');
+      returnBody = await getTwoRandomActors();
     }
-
+  } else {
+    console.log('🚨 NO EVENT BODY');
+    returnBody = JSON.parse('No event body received by the API' as string);
     return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: returnBody,
+        statusCode: 400,
+        input: event,
+      }),
+    };
+  }
+
+  console.log('⚙️ Returning:', returnBody);
+  return {
     statusCode: 200,
     body: JSON.stringify({
-      message: eventBody,
+      message: returnBody,
       statusCode: 200,
-      input: event,   // event is the input to the lambda function
+      input: event,
     }),
   };
-}
+};

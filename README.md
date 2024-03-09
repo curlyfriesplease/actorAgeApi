@@ -16,6 +16,17 @@ demo-get-details/ = actor-age-api/
 sam-demo-stack = actor-age-api-stack
 sam-demo-cloudformation = actorageapibucket
 
+## Adding API keys
+
+A TMDB API key is required.
+https://www.themoviedb.org/settings/api
+once you've created an account, you can get your key here.
+
+Locally: Create a .env file in the root of your project and add your API key and bearer token:
+API_KEY=your_api_key
+BEARER_TOKEN=your_bearer_token
+In AWS: tbc
+
 ## Update quick guide
 
 Make changes in IDE
