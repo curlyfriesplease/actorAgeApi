@@ -36,7 +36,6 @@ export const lambdaHandler = async (
     statusCode: 200,
     body: JSON.stringify({
       message: returnBody,
-      statusCode: 200,
       input: event,
     }),
   };
