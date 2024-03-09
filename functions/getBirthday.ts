@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
-
-dotenv.config(); // loads the .env file into process.env
+require('dotenv').config();
 
 const bearerKey = process.env.BEARER_TOKEN;
 

@@ -25,7 +25,7 @@ once you've created an account, you can get your key here.
 Locally: Create a .env file in the root of your project and add your API key and bearer token:
 API_KEY=your_api_key
 BEARER_TOKEN=your_bearer_token
-In AWS: tbc
+In AWS: Go into the Lambda function > configuration > environment variables > add BEARER_TOKEN
 
 ## Update quick guide
 
