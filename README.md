@@ -31,7 +31,10 @@ In AWS: Go into the Lambda function > configuration > environment variables > ad
 
 Make changes in IDE
 Then run these:
-npm run build
+npm install
+tsc
+cp -R node_modules/ build/ {NB this takes a while. If deps have changed this'll need repeating}
+cp package.json build/ {Without these two steps, Sam build will not include deps}
 sam build
 sam package --output-template-file packaged.yaml --s3-bucket actorageapibucket
 sam deploy --template-file packaged.yaml --region eu-west-2 --capabilities CAPABILITY_IAM --stack-name actor-age-api-stack
