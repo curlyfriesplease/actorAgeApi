@@ -10,7 +10,7 @@ const lambdaHandler = async (event, context) => {
     console.log('⚙️ Received event:', JSON.stringify(event, null, 2));
     let returnBody;
     if (event.body) {
-        const body = JSON.parse(event.body);
+        const body = event.body;
         if (body.actor1 && body.actor2) {
             console.log('⚙️ two actor IDs specified, fetching specific actors...');
             returnBody = await (0, getTwoSpecificActors_1.default)(body.actor1, body.actor2);

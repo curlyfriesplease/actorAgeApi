@@ -27,7 +27,7 @@ Resources:
         Fn::GetAtt:
         - ActorAgeApi
         - RootResourceId
-      PathPart: '{userId}'
+      PathPart: actors
       RestApiId:
         Ref: ActorAgeApi
     Metadata:
@@ -37,15 +37,14 @@ Resources:
     Properties:
       ApiKeyRequired: false
       AuthorizationType: NONE
-      HttpMethod: GET
-      RequestParameters:
-        method.request.path.userId: true
+      HttpMethod: POST
       Integration:
         Credentials:
           Fn::GetAtt:
           - ApiGatewayIamRole
           - Arn
         IntegrationHttpMethod: POST
+        Type: AWS
         IntegrationResponses:
         - ResponseTemplates:
             application/json: ''
@@ -57,10 +56,8 @@ Resources:
           StatusCode: 200
         PassthroughBehavior: WHEN_NO_TEMPLATES
         RequestTemplates:
-          application/json: '{ "userId": "$input.params(''userId'')", "firstName":
-            "$input.params(''firstName'')"}'
+          application/json: '{ "body" : $input.json(''$'') }'
         TimeoutInMillis: 29000
-        Type: AWS
         Uri:
           Fn::Sub:
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
@@ -150,7 +147,7 @@ Resources:
   ActorAgeGetDetailsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://actorageapibucket/2ab65cbd93877f3f3baa9e081830a118
+      CodeUri: s3://actorageapibucket/69f46f5618ca8d024e085fd497b1bcf2
       Handler: mainFunc.lambdaHandler
       Role:
         Fn::GetAtt:
@@ -190,7 +187,7 @@ Outputs:
   ActorAgeApi:
     Description: API Gateway endpoint URL for Prod stage for Get Details Function
     Value:
-      Fn::Sub: https://${ActorAgeApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}/{userId}
+      Fn::Sub: https://${ActorAgeApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}/
   ActorAgeGetDetailsFunction:
     Description: Get Details Function ARN
     Value:

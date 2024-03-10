@@ -26,7 +26,7 @@ Resources:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt ActorAgeApi.RootResourceId
-      PathPart: '{userId}'
+      PathPart: actors
       RestApiId: !Ref ActorAgeApi
 
   ApiGatewayMethod:
@@ -34,12 +34,11 @@ Resources:
     Properties:
       ApiKeyRequired: false
       AuthorizationType: NONE
-      HttpMethod: GET
-      RequestParameters:
-        method.request.path.userId: true
+      HttpMethod: POST
       Integration:
         Credentials: !GetAtt ApiGatewayIamRole.Arn
         IntegrationHttpMethod: POST
+        Type: AWS_PROXY
         IntegrationResponses:
           - ResponseTemplates: { 'application/json': '' }
             ResponseParameters:
@@ -50,11 +49,9 @@ Resources:
             StatusCode: 200
         PassthroughBehavior: WHEN_NO_TEMPLATES
         RequestTemplates:
-          application/json: '{ "userId": "$input.params(''userId'')", "firstName": "$input.params(''firstName'')"}'
+          application/json: '{ "body" : $input.json(''$'') }'
         TimeoutInMillis: 29000
         Type: AWS
-        # RequestParameters:
-        #   integration.request.path.userId: method.request.path.userId
         Uri: !Sub
           - 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations'
           - lambdaArn: !GetAtt 'ActorAgeGetDetailsFunction.Arn'
@@ -153,7 +150,7 @@ Resources:
 Outputs:
   ActorAgeApi:
     Description: 'API Gateway endpoint URL for Prod stage for Get Details Function'
-    Value: !Sub 'https://${ActorAgeApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}/{userId}'
+    Value: !Sub 'https://${ActorAgeApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStageName}/'
   ActorAgeGetDetailsFunction:
     Description: 'Get Details Function ARN'
     Value: !GetAtt ActorAgeGetDetailsFunction.Arn

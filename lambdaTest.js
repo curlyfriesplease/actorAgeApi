@@ -10,7 +10,6 @@ const mockEvent = {
   body: JSON.stringify({
     actor1: 17142,
     actor2: 3063,
-    guess: 'actor1',
   }),
 };
 
