@@ -1,4 +1,6 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+
+dotenv.config(); // loads the .env file into process.env
 const bearerKey = process.env.BEARER_TOKEN;
 
 async function getActorDetails(actorId: number) {

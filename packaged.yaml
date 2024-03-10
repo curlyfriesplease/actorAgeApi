@@ -150,7 +150,7 @@ Resources:
   ActorAgeGetDetailsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://actorageapibucket/5279e5582a9309a4856b641dc908d7c0
+      CodeUri: s3://actorageapibucket/2ab65cbd93877f3f3baa9e081830a118
       Handler: mainFunc.lambdaHandler
       Role:
         Fn::GetAtt:

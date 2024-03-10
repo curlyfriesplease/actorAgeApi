@@ -124,7 +124,7 @@ Resources:
   ActorAgeGetDetailsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: build/
+      CodeUri:
       Handler: mainFunc.lambdaHandler
       Role: !GetAtt LambdaIamRole.Arn
       Runtime: nodejs18.x
