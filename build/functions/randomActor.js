@@ -19,7 +19,7 @@ async function randomActorRequest(pageNo) {
         const response = await fetch(searchEndpoint, options);
         const data = await response.json();
         const oneRandomActor = data.results[Math.floor(Math.random() * data.results.length)];
-        console.log('⚙️ Successfully fetched one random actor');
+        console.log('⚙️ Successfully fetched one random actor from searchEndpoint: ', searchEndpoint);
         console.log('⚙️ oneRandomActor:', oneRandomActor);
         return oneRandomActor;
     }
