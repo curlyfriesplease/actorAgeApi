@@ -1,28 +1,9 @@
 import dotenv from 'dotenv';
+import getActorDetails from './getActorDetails';
+import getCombinedCreditsTopThree from './getCombinedCreditsTopThree';
 
 dotenv.config(); // loads the .env file into process.env
 const bearerKey = process.env.BEARER_TOKEN;
-
-async function getActorDetails(actorId: number) {
-  const actorEndpoint = `https://api.themoviedb.org/3/person/${actorId}`;
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${bearerKey}`,
-    },
-  };
-
-  try {
-    const response = await fetch(actorEndpoint, options);
-    const data = await response.json();
-    console.log('⚙️ Successfully fetched actor details:', data.name);
-    return data;
-  } catch (error) {
-    console.error(error);
-    throw new Error('getActorDetails(): Internal server error');
-  }
-}
 
 export default async function getTwoSpecificActors(
   actor1: number,
@@ -31,10 +12,28 @@ export default async function getTwoSpecificActors(
   console.log('⚙️ fetching two specific actors...');
 
   try {
-    const actorPromises = [getActorDetails(actor1), getActorDetails(actor2)];
+    const actorPromises = [
+      Promise.all([
+        getActorDetails(actor1),
+        getCombinedCreditsTopThree(actor1),
+      ]),
+      Promise.all([
+        getActorDetails(actor2),
+        getCombinedCreditsTopThree(actor2),
+      ]),
+    ];
     const actors = await Promise.all(actorPromises);
-    console.log('⚙️ Successfully fetched two specific actors:', actors);
-    return actors; // This will be an array of two actors
+
+    const actorsWithKnownFor = actors.map(([actorDetails, knownFor]) => ({
+      ...actorDetails,
+      known_for: knownFor,
+    }));
+
+    console.log(
+      '⚙️ Successfully fetched two specific actors:',
+      actorsWithKnownFor
+    );
+    return actorsWithKnownFor; // This will be an array of two actors
   } catch (err) {
     console.error(err);
     throw err;
