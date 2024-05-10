@@ -1,8 +1,18 @@
+![HOWTA_logo_readme](https://github.com/curlyfriesplease/actorAgeApi/assets/81927768/1fa097d2-285e-45a7-b573-58985c3d66fa)
+
+
 # actorAgeGameApi
 
 ## Description
 
 The serverless lambda function that serves as the backend for the 'How Old Was That Actor' game
+
+## Overall site setup
+
+The site is made up of these three repos:
+
+![actorAgeDiagram](https://github.com/curlyfriesplease/actorAgeApi/assets/81927768/bfb64f66-5c16-4062-a4c0-def3874c6143)
+
 
 ## Setup
 
