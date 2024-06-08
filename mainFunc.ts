@@ -1,5 +1,5 @@
 import { Context, APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
-import getTwoRandomActors from './functions/getTwoRandomActors';
+import { getTwoRandomActors } from './functions/getTwoRandomActors';
 import getTwoSpecificActors from './functions/getTwoSpecificActors';
 
 export const lambdaHandler = async (

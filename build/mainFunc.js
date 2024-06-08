@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.lambdaHandler = void 0;
-const getTwoRandomActors_1 = __importDefault(require("./functions/getTwoRandomActors"));
+const getTwoRandomActors_1 = require("./functions/getTwoRandomActors");
 const getTwoSpecificActors_1 = __importDefault(require("./functions/getTwoSpecificActors"));
 const lambdaHandler = async (event, context) => {
     console.log('⚙️ Received event:', JSON.stringify(event, null, 2));
@@ -17,7 +17,7 @@ const lambdaHandler = async (event, context) => {
         }
         else {
             console.log('⚙️ no actor IDs specified, fetching two random actors...');
-            returnBody = await (0, getTwoRandomActors_1.default)();
+            returnBody = await (0, getTwoRandomActors_1.getTwoRandomActors)();
         }
     }
     else {

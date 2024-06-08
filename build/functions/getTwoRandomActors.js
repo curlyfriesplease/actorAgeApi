@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getTwoRandomActors = exports.twoRandomNumbersBetweenOneAndTwentyFive = void 0;
 const randomActor_1 = __importDefault(require("./randomActor"));
 const getActorDetails_1 = __importDefault(require("./getActorDetails"));
 function twoRandomNumbersBetweenOneAndTwentyFive() {
@@ -13,6 +14,7 @@ function twoRandomNumbersBetweenOneAndTwentyFive() {
     }
     return [num1, num2];
 }
+exports.twoRandomNumbersBetweenOneAndTwentyFive = twoRandomNumbersBetweenOneAndTwentyFive;
 async function getTwoRandomActors() {
     console.log('⚙️ fetching two random actors...');
     const [randomNumberBetweenOneAndTwentyFive, randomNumberBetweenOneAndTwentyFive2,] = twoRandomNumbersBetweenOneAndTwentyFive();
@@ -41,4 +43,4 @@ async function getTwoRandomActors() {
         throw err;
     }
 }
-exports.default = getTwoRandomActors;
+exports.getTwoRandomActors = getTwoRandomActors;

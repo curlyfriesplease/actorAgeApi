@@ -1,7 +1,7 @@
 import randomActorRequest from './randomActor';
 import getActorDetails from './getActorDetails';
 
-function twoRandomNumbersBetweenOneAndTwentyFive() {
+export function twoRandomNumbersBetweenOneAndTwentyFive(): [number, number] {
   let num1 = Math.floor(Math.random() * 25) + 1;
   let num2 = Math.floor(Math.random() * 25) + 1;
   while (num1 === num2) {
@@ -10,7 +10,7 @@ function twoRandomNumbersBetweenOneAndTwentyFive() {
   return [num1, num2];
 }
 
-export default async function getTwoRandomActors() {
+export async function getTwoRandomActors(): Promise<[any, any]> {
   console.log('⚙️ fetching two random actors...');
   const [
     randomNumberBetweenOneAndTwentyFive,
@@ -21,18 +21,20 @@ export default async function getTwoRandomActors() {
       randomActorRequest(randomNumberBetweenOneAndTwentyFive),
       randomActorRequest(randomNumberBetweenOneAndTwentyFive2),
     ];
-    const actors = await Promise.all(actorPromises).then((actors) => {
-      const actor1 = actors[0];
-      const actor2 = actors[1];
-      return Promise.all([
-        getActorDetails(actor1.id),
-        getActorDetails(actor2.id),
-      ]).then(([actor1Birthday, actor2Birthday]) => {
-        actor1.birthday = actor1Birthday;
-        actor2.birthday = actor2Birthday;
-        return [actor1, actor2];
-      });
-    });
+    const actors: [any, any] = await Promise.all(actorPromises).then(
+      (actors) => {
+        const actor1 = actors[0];
+        const actor2 = actors[1];
+        return Promise.all([
+          getActorDetails(actor1.id),
+          getActorDetails(actor2.id),
+        ]).then(([actor1Birthday, actor2Birthday]) => {
+          actor1.birthday = actor1Birthday;
+          actor2.birthday = actor2Birthday;
+          return [actor1, actor2];
+        });
+      }
+    );
     console.log('⚙️ Successfully fetched two random actors:', actors);
     return actors; // This will be an array of two actors
   } catch (err) {
