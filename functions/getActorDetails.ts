@@ -17,12 +17,9 @@ export default async function getActorDetails(actorId: number) {
   try {
     const response = await fetch(actorEndpoint, options);
     const data = await response.json();
-    console.log(
-      '⚙️ Successfully fetched actor:' + data.name + ' ' + data.birthday
-    );
     return data;
   } catch (error) {
     console.error(error);
-    throw new Error('getACtorDetails(): Internal server error');
+    throw new Error('getActorDetails(): Internal server error');
   }
 }

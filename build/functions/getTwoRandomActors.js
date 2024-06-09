@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTwoRandomActors = exports.twoRandomNumbersBetweenOneAndTwentyFive = void 0;
-const randomActor_1 = __importDefault(require("./randomActor"));
+const getRandomActor_1 = __importDefault(require("./getRandomActor"));
 const getActorDetails_1 = __importDefault(require("./getActorDetails"));
 function twoRandomNumbersBetweenOneAndTwentyFive() {
     let num1 = Math.floor(Math.random() * 25) + 1;
@@ -20,8 +20,8 @@ async function getTwoRandomActors() {
     const [randomNumberBetweenOneAndTwentyFive, randomNumberBetweenOneAndTwentyFive2,] = twoRandomNumbersBetweenOneAndTwentyFive();
     try {
         const actorPromises = [
-            (0, randomActor_1.default)(randomNumberBetweenOneAndTwentyFive),
-            (0, randomActor_1.default)(randomNumberBetweenOneAndTwentyFive2),
+            (0, getRandomActor_1.default)(randomNumberBetweenOneAndTwentyFive),
+            (0, getRandomActor_1.default)(randomNumberBetweenOneAndTwentyFive2),
         ];
         const actors = await Promise.all(actorPromises).then((actors) => {
             const actor1 = actors[0];
@@ -35,7 +35,6 @@ async function getTwoRandomActors() {
                 return [actor1, actor2];
             });
         });
-        console.log('⚙️ Successfully fetched two random actors:', actors);
         return actors; // This will be an array of two actors
     }
     catch (err) {

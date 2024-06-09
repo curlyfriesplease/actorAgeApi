@@ -1,7 +1,7 @@
 import getTwoSpecificActors from '../functions/getTwoSpecificActors';
 
 describe('getTwoSpecificActors', () => {
-  it('fetches Tom Hanks and Brendan Gleeson specifically, checks they have birthdays and >2 credits', async () => {
+  it('fetches Tom Hanks and Brendan Gleeson specifically, checks they have birthdays and 3 credits', async () => {
     const testActors = await getTwoSpecificActors(31, 2039);
     expect(testActors).toHaveLength(2);
 

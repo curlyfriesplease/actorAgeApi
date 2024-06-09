@@ -10,7 +10,7 @@
         "compile": "tsc",
         "build": "tsc",
         "test": "npm run compile && npm run jest",
-        "jest": "jest"
+        "jest": "jest --verbose"
     },
     "dependencies": {
       "@types/jest": "^29.5.12",

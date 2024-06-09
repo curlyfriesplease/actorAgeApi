@@ -26,7 +26,6 @@ async function getTwoSpecificActors(actor1, actor2) {
             ...actorDetails,
             known_for: knownFor,
         }));
-        console.log('⚙️ Successfully fetched two specific actors:', actorsWithKnownFor);
         return actorsWithKnownFor; // This will be an array of two actors
     }
     catch (err) {

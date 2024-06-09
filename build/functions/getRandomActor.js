@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config(); // loads the .env file into process.env
 const bearerKey = process.env.BEARER_TOKEN;
-async function getActorDetails(actorId) {
-    const actorEndpoint = `https://api.themoviedb.org/3/person/${actorId}`;
+async function randomActorRequest(pageNo) {
+    const searchEndpoint = `https://api.themoviedb.org/3/person/popular?language=en-US&page=${pageNo}`;
     const options = {
         method: 'GET',
         headers: {
@@ -16,13 +16,14 @@ async function getActorDetails(actorId) {
         },
     };
     try {
-        const response = await fetch(actorEndpoint, options);
+        const response = await fetch(searchEndpoint, options);
         const data = await response.json();
-        return data;
+        const oneRandomActor = data.results[Math.floor(Math.random() * data.results.length)];
+        return oneRandomActor;
     }
     catch (error) {
         console.error(error);
-        throw new Error('getActorDetails(): Internal server error');
+        throw new Error('randomActorRequest(): Internal server error');
     }
 }
-exports.default = getActorDetails;
+exports.default = randomActorRequest;

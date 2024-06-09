@@ -1,4 +1,4 @@
-import randomActorRequest from './randomActor';
+import randomActorRequest from './getRandomActor';
 import getActorDetails from './getActorDetails';
 
 export function twoRandomNumbersBetweenOneAndTwentyFive(): [number, number] {

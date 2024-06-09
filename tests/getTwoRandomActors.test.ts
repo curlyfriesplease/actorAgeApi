@@ -18,12 +18,6 @@ describe('getTwoRandomActors', () => {
   });
 
   it('returns an array of two actors, each with ID numbers and birthdays', async () => {
-    // randomActorRequest.mockResolvedValue({ id: 1 });
-    // getActorDetails.mockResolvedValue({
-    //   birthday: '2000-01-01',
-    //   deathday: null,
-    // });
-
     const actors = await getTwoRandomActors();
 
     expect(actors).toHaveLength(2);
