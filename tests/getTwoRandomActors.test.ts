@@ -1,20 +1,7 @@
 import {
   twoRandomNumbersBetweenOneAndTwentyFive,
   getTwoRandomActors,
-} from './getTwoRandomActors';
-// import randomActorRequest from './randomActor';
-// import getActorDetails from './getActorDetails';
-
-// jest.mock('./randomActor');
-// jest.mock('./getActorDetails');
-// jest.mock('./getTwoRandomActors', () => ({
-//   twoRandomNumbersBetweenOneAndTwentyFive: jest.fn(() => {
-//     return 'twoRandomNumbersBetweenOneAndTwentyFive';
-//   }),
-//   getTwoRandomActors: jest.fn(() => {
-//     return 'getTwoRandomActors';
-//   }),
-// }));
+} from '../functions/getTwoRandomActors';
 
 describe('getTwoRandomActors', () => {
   it('twoRandomNumbersBetweenOneAndTwentyFive() returns two distinct numbers, between 1 and 25, checked 200 times', () => {

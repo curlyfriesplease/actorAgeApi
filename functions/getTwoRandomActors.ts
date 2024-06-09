@@ -35,7 +35,6 @@ export async function getTwoRandomActors(): Promise<[any, any]> {
         });
       }
     );
-    console.log('⚙️ Successfully fetched two random actors:', actors);
     return actors; // This will be an array of two actors
   } catch (err) {
     console.error(err);

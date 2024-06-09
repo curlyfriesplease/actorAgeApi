@@ -23,7 +23,6 @@ export default async function randomActorRequest(pageNo: number) {
       '⚙️ Successfully fetched one random actor from searchEndpoint: ',
       searchEndpoint
     );
-    console.log('⚙️ oneRandomActor:', oneRandomActor);
     return oneRandomActor;
   } catch (error) {
     console.error(error);
